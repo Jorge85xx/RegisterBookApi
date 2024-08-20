@@ -1,5 +1,6 @@
 from extensions import db
 
+
 class Book(db.Model):
     book_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)

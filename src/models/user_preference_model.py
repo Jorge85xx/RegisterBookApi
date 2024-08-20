@@ -1,5 +1,6 @@
 from extensions import db
 
+
 class UserPreferences(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
     preference_name = db.Column(db.String(50), nullable=False)

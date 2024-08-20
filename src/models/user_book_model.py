@@ -1,5 +1,6 @@
 from extensions import db
 
+
 class UserBook(db.Model):
     user_book_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
