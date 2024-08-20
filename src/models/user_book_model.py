@@ -10,8 +10,8 @@ class UserBook(db.Model):
     notes = db.Column(db.Text)  # Notas pessoais do usuário sobre o livro
 
     # Relationships
-    user = db.relationship('User', backref=db.backref('user_books', lazy=True))
-    book = db.relationship('Book', backref=db.backref('user_books', lazy=True))
+    user_relation = db.relationship('User', back_populates='user_books')
+    book_relation = db.relationship('Book', back_populates='book_user_relations')
 
     @property
     def rating(self):

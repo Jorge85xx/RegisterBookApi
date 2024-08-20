@@ -1,8 +1,7 @@
 from flask import Blueprint, request
 from services.user_service import UserService
-from models import User
-from extensions import db
-from utils import response
+from utils.response import response  
+
 
 class UserController:
     def __init__(self, app=None):
@@ -24,21 +23,38 @@ class UserController:
     def create_user(self):
         data = request.get_json()
         try:
-            user = self.user_service.create_user(**data)
-            return response(
-                status=201,
-                name_of_content='user',
-                content={
-                    'id': user.user_id,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'nickname': user.nickname,
-                    'cpf': user.cpf,
-                    'phone_number': user.phone_number,
-                    'profile_picture': user.profile_picture,
-                    'quote': user.quote
-                }
+            user = self.user_service.create_user(
+                first_name=data.get('first_name'),
+                last_name=data.get('last_name'),
+                nickname=data.get('nickname'),
+                cpf=data.get('cpf'),
+                phone_number=data.get('phone_number'),
+                profile_picture=data.get('profile_picture'),
+                password=data.get('password'),  # Inclua o password aqui
+                quote=data.get('quote')
             )
+            if user:
+                return response(
+                    status=201,
+                    name_of_content='user',
+                    content={
+                        'id': user.user_id,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'nickname': user.nickname,
+                        'cpf': user.cpf,
+                        'phone_number': user.phone_number,
+                        'profile_picture': user.profile_picture,
+                        'quote': user.quote
+                    }
+                )
+            else:
+                return response(
+                    status=400,
+                    name_of_content='error',
+                    content={},
+                    message='Failed to create user'
+                )
         except Exception as e:
             return response(
                 status=400,
@@ -76,20 +92,28 @@ class UserController:
         data = request.get_json()
         try:
             user = self.user_service.update_user(user_id, **data)
-            return response(
-                status=200,
-                name_of_content='user',
-                content={
-                    'id': user.user_id,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'nickname': user.nickname,
-                    'cpf': user.cpf,
-                    'phone_number': user.phone_number,
-                    'profile_picture': user.profile_picture,
-                    'quote': user.quote
-                }
-            )
+            if user:
+                return response(
+                    status=200,
+                    name_of_content='user',
+                    content={
+                        'id': user.user_id,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'nickname': user.nickname,
+                        'cpf': user.cpf,
+                        'phone_number': user.phone_number,
+                        'profile_picture': user.profile_picture,
+                        'quote': user.quote
+                    }
+                )
+            else:
+                return response(
+                    status=404,
+                    name_of_content='error',
+                    content={},
+                    message='User not found'
+                )
         except Exception as e:
             return response(
                 status=400,
@@ -100,13 +124,21 @@ class UserController:
 
     def delete_user(self, user_id):
         try:
-            self.user_service.delete_user(user_id)
-            return response(
-                status=204,
-                name_of_content='message',
-                content={},
-                message='User deleted successfully'
-            )
+            success = self.user_service.delete_user(user_id)
+            if success:
+                return response(
+                    status=204,
+                    name_of_content='message',
+                    content={},
+                    message='User deleted successfully'
+                )
+            else:
+                return response(
+                    status=404,
+                    name_of_content='error',
+                    content={},
+                    message='User not found'
+                )
         except Exception as e:
             return response(
                 status=400,

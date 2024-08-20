@@ -10,9 +10,9 @@ class Book(db.Model):
     synopsis = db.Column(db.Text)
 
     # Relationships
-    publisher = db.relationship('Publisher', backref=db.backref('books', lazy=True))
-    author = db.relationship('Author', backref=db.backref('books', lazy=True))
-    user_books = db.relationship('UserBook', backref='book', lazy=True)
+    publisher = db.relationship('Publisher', backref=db.backref('publisher_books', lazy=True))
+    author = db.relationship('Author', backref=db.backref('author_books', lazy=True))
+    book_user_relations = db.relationship('UserBook', back_populates='book_relation')
 
     def __repr__(self):
         return f'<Book {self.title}>'

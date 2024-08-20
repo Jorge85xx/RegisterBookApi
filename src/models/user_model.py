@@ -1,6 +1,5 @@
 from extensions import db
 
-
 class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
@@ -13,7 +12,7 @@ class User(db.Model):
     quote = db.Column(db.Text)
 
     # Relationships
-    user_books = db.relationship('UserBook', backref='user', lazy=True)
+    user_books = db.relationship('UserBook', back_populates='user_relation')
 
     def __repr__(self):
         return f'<User {self.first_name} {self.last_name}>'
