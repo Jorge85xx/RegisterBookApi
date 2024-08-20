@@ -30,7 +30,7 @@ class UserController:
                 cpf=data.get('cpf'),
                 phone_number=data.get('phone_number'),
                 profile_picture=data.get('profile_picture'),
-                password=data.get('password'),  # Inclua o password aqui
+                password=data.get('password'), #Adicionar criptograifia com hash ou jwt
                 quote=data.get('quote')
             )
             if user:

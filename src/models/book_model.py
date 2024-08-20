@@ -13,6 +13,8 @@ class Book(db.Model):
     publisher = db.relationship('Publisher', backref=db.backref('publisher_books', lazy=True))
     author = db.relationship('Author', backref=db.backref('author_books', lazy=True))
     book_user_relations = db.relationship('UserBook', back_populates='book_relation')
+    genres = db.relationship('Genre', secondary='book_genre', back_populates='books')
+    
 
     def __repr__(self):
         return f'<Book {self.title}>'

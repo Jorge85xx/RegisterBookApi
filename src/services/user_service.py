@@ -31,7 +31,7 @@ class UserService:
         try:
             return User.query.get(user_id)
         except SQLAlchemyError as e:
-            print(f"Error retrieving user: {e}")
+            print(f"Error find user: {e}")
             return None
 
     @staticmethod
@@ -67,4 +67,3 @@ class UserService:
             return None
 
     
-
