@@ -6,8 +6,8 @@ class UserBook(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
     progress = db.Column(db.Float)  # Percentual de progresso de leitura
-    rating = db.Column(db.Integer)  # Nota de 1 a 10 ou qualquer escala que você escolher
-    notes = db.Column(db.Text)  # Notas pessoais do usuário sobre o livro
+    rating = db.Column(db.Integer)  # Nota de 1 a 10
+    notes = db.Column(db.Text)  
 
     # Relationships
     user_relation = db.relationship('User', back_populates='user_books')

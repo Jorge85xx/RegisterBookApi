@@ -1,7 +1,7 @@
 from flask import Flask
 from extensions import db
 from config.config import Config
-from controllers import UserController, AuthorController, PublisherController, BookController, GenreController
+from controllers import UserController, AuthorController, PublisherController, BookController, GenreController, UserBookController
 from services.user_service import UserService
 
 user = UserService()
@@ -17,6 +17,7 @@ def create_app():
     PublisherController(app)
     AuthorController(app)
     GenreController(app)
+    UserBookController(app)
     with app.app_context():
         db.create_all()
     return app

@@ -6,7 +6,9 @@ from sqlalchemy.exc import SQLAlchemyError
 class UserService:
 
     @staticmethod
-    def create_user(first_name, last_name, nickname, cpf, phone_number, profile_picture, password, quote):
+    def create_user(first_name, last_name, nickname, cpf, phone_number, password, profile_picture="", quote=""):
+        if not all([first_name, last_name, nickname, cpf, phone_number, profile_picture, password, quote]):
+            raise ValueError("All fields are required except phone_number, profile_picture, and quote.")
         try:
             user = User(
                 first_name=first_name,
