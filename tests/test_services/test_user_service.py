@@ -59,7 +59,44 @@ class UserServiceTestCase(unittest.TestCase):
 
             deleted_user = UserService.get_user_by_id(user.user_id)
             self.assertIsNone(deleted_user)
+    def test_update_user(self):
+        with self.app.app_context():
+            original_nickname = self._generate_random_string()
+            original_cpf = self._generate_random_cpf()
+            user = UserService.create_user(
+                first_name='John',
+                last_name='Doe',
+                nickname=original_nickname,
+                cpf=original_cpf,
+                phone_number='555-5557',
+                profile_picture='profile3.jpg',
+                password='password789',
+                quote='Live and Let Live'
+            )
+            self.assertIsNotNone(user)
+            self.assertEqual(user.nickname, original_nickname)
+            self.assertEqual(user.cpf, original_cpf)
+            updated_nickname = 'UpdatedNickname'
+            updated_phone_number = '998986598'
+            updated_cpf = self._generate_random_cpf()
+            updated_user = UserService.update_user(
+                user_id=user.user_id,
+                nickname=updated_nickname,
+                phone_number=updated_phone_number,
+                cpf=updated_cpf
+            )
+            self.assertIsNotNone(updated_user)
+            self.assertEqual(updated_user.nickname, updated_nickname)
+            self.assertEqual(updated_user.phone_number, updated_phone_number)
+            self.assertEqual(updated_user.cpf, updated_cpf)
+
+
+            self.assertEqual(updated_user.first_name, user.first_name)
+            self.assertEqual(updated_user.last_name, user.last_name)
+
             
+            UserService.delete_user(user.user_id)
+        
     def test_get_user_by_id(self):
         with self.app.app_context():
           nicknameee = self._generate_random_string()

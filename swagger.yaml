@@ -1,0 +1,102 @@
+swagger: '2.0'
+info:
+  title: API de Livros
+  version: 1.0.0
+  description: Documentação da API para gerenciamento de livros e gêneros.
+host: localhost:8000
+basePath: /
+schemes:
+  - http
+paths:
+  /books/:
+    post:
+      tags:
+        - books
+      summary: Cria um novo livro
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Livro a ser criado
+          required: true
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              publisher_id:
+                type: integer
+              cover_image:
+                type: string
+              author_id:
+                type: integer
+              synopsis:
+                type: string
+              genre_id:
+                type: integer
+      responses:
+        201:
+          description: Livro criado com sucesso
+        400:
+          description: Erro ao criar livro
+  /books/{book_id}:
+    get:
+      tags:
+        - books
+      summary: Retorna um livro pelo ID
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Detalhes do livro
+        404:
+          description: Livro não encontrado
+    put:
+      tags:
+        - books
+      summary: Atualiza um livro existente
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          type: integer
+        - in: body
+          name: body
+          description: Dados para atualizar o livro
+          required: true
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              publisher_id:
+                type: integer
+              cover_image:
+                type: string
+              author_id:
+                type: integer
+              synopsis:
+                type: string
+      responses:
+        200:
+          description: Livro atualizado com sucesso
+        404:
+          description: Livro não encontrado
+    delete:
+      tags:
+        - books
+      summary: Deleta um livro pelo ID
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          type: integer
+      responses:
+        204:
+          description: Livro deletado com sucesso
+        404:
+          description: Livro não encontrado

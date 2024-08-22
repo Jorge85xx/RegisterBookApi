@@ -63,7 +63,7 @@ class BookService:
             return None
 
     @staticmethod
-    def add_genre_to_book(self, book_id, genre_id):
+    def add_genre_to_book( book_id, genre_id):
         try:
             book = Book.query.get(book_id)
             genre = Genre.query.get(genre_id)

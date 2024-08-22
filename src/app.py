@@ -4,6 +4,7 @@ from config.config import Config
 from controllers import UserController, AuthorController, PublisherController, BookController, GenreController, UserBookController
 from services.user_service import UserService
 
+
 user = UserService()
 
 

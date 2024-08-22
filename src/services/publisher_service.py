@@ -7,9 +7,12 @@ class PublisherService:
     @staticmethod
     def create_publisher(name):
         try:
-            publisher = Publisher(
-                name=name
-            )
+            existing_publisher = Publisher.query.filter_by(name=name).first()
+            if existing_publisher:
+                return existing_publisher 
+
+            
+            publisher = Publisher(name=name)
             db.session.add(publisher)
             db.session.commit()
             return publisher
@@ -27,15 +30,14 @@ class PublisherService:
             return None
 
     @staticmethod
-    def update_publisher(publisher_id, **kwargs):
+    def update_publisher(publisher_id, name):
         try:
             publisher = Publisher.query.get(publisher_id)
             if not publisher:
                 print("Publisher not found")
                 return None
-            for key, value in kwargs.items():
-                if hasattr(publisher, key):
-                    setattr(publisher, key, value)
+
+            publisher.name = name
             db.session.commit()
             return publisher
         except SQLAlchemyError as e:
