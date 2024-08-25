@@ -29,6 +29,14 @@ class BookService:
         except SQLAlchemyError as e:
             print(f"Error find book: {e}")
             return None
+        
+    @staticmethod
+    def get_books(quantity):
+        try:
+            return Book.query.limit(quantity).all()
+        except SQLAlchemyError as e:
+            print(f"Error fetching books: {e}")
+            return None
 
     @staticmethod
     def update_book(book_id, **kwargs):

@@ -1,13 +1,21 @@
+from dataclasses import dataclass, field
 from extensions import db
 
-
+@dataclass
 class UserBook(db.Model):
+    user_book_id: int
+    user_id: int
+    book_id: int
+    progress: float = field(init=False)
+    rating: int = field(init=False)
+    notes: str
+
     user_book_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
-    progress = db.Column(db.Float)  # Percentual de progresso de leitura
-    rating = db.Column(db.Integer)  # Nota de 1 a 10
-    notes = db.Column(db.Text)  
+    _progress = db.Column('progress', db.Float)  
+    _rating = db.Column('rating', db.Integer)  
+    notes = db.Column(db.Text)
 
     # Relationships
     user_relation = db.relationship('User', back_populates='user_books')

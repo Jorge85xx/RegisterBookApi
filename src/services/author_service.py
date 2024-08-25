@@ -2,7 +2,6 @@ from extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from models import Author
 
-
 class AuthorService:
     @staticmethod
     def create_author(first_name, last_name, bio):
@@ -25,7 +24,7 @@ class AuthorService:
         try:
             return Author.query.get(author_id)
         except SQLAlchemyError as e:
-            print(f"Error find author: {e}")
+            print(f"Error finding author: {e}")
             return None
 
     @staticmethod
@@ -59,3 +58,11 @@ class AuthorService:
             db.session.rollback()
             print(f"Error deleting author: {e}")
             return None
+
+    @staticmethod
+    def get_all_authors():
+        try:
+            return Author.query.all()
+        except SQLAlchemyError as e:
+            print(f"Error retrieving authors: {e}")
+            return []

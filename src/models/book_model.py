@@ -1,7 +1,15 @@
+from dataclasses import dataclass
 from extensions import db
 
-
+@dataclass
 class Book(db.Model):
+    book_id: int
+    title: str
+    publisher_id: int
+    cover_image: str
+    author_id: int
+    synopsis: str
+
     book_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publisher.publisher_id'), nullable=False)
@@ -15,6 +23,5 @@ class Book(db.Model):
     book_user_relations = db.relationship('UserBook', back_populates='book_relation')
     genres = db.relationship('Genre', secondary='book_genre', back_populates='books')
     
-
     def __repr__(self):
         return f'<Book {self.title}>'

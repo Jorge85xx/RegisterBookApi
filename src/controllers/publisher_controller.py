@@ -1,31 +1,25 @@
-from flask import Blueprint, request
+from flask_restx import Namespace, Resource, fields
 from services.publisher_service import PublisherService
-from utils.response import response  
+from utils.response import response
+from flask import request
 
+api = Namespace('publishers', description='Publisher related operations')
 
-class PublisherController:
-    def __init__(self, app=None):
-        self.publisher_bp = Blueprint('publishers', __name__, url_prefix='/publishers')
-        self.publisher_service = PublisherService()
+publisher_model = api.model('Publisher', {
+    'name': fields.String(required=True, description='The name of the publisher'),
+})
 
-        # Register routes
-        self.publisher_bp.add_url_rule('/', 'create_publisher', self.create_publisher, methods=['POST'])
-        self.publisher_bp.add_url_rule('/<int:publisher_id>', 'get_publisher', self.get_publisher, methods=['GET'])
-        self.publisher_bp.add_url_rule('/<int:publisher_id>', 'update_publisher', self.update_publisher, methods=['PUT'])
-        self.publisher_bp.add_url_rule('/<int:publisher_id>', 'delete_publisher', self.delete_publisher, methods=['DELETE'])
-
-        if app:
-            self.init_app(app)
-
-    def init_app(self, app):
-        app.register_blueprint(self.publisher_bp)
-
-    def create_publisher(self):
+@api.route('/')
+class PublisherList(Resource):
+    @api.doc('create_publisher')
+    @api.expect(publisher_model)
+    @api.response(201, 'Publisher created')
+    @api.response(400, 'Failed to create publisher')
+    def post(self):
+        """Create a new publisher"""
         data = request.get_json()
         try:
-            publisher = self.publisher_service.create_publisher(
-                name=data.get('name')
-            )
+            publisher = PublisherService.create_publisher(name=data.get('name'))
             if publisher:
                 return response(
                     status=201,
@@ -50,8 +44,14 @@ class PublisherController:
                 message=str(e)
             )
 
-    def get_publisher(self, publisher_id):
-        publisher = self.publisher_service.get_publisher_by_id(publisher_id)
+@api.route('/<int:publisher_id>')
+@api.response(404, 'Publisher not found')
+class PublisherResource(Resource):
+    @api.doc('get_publisher')
+    @api.response(200, 'Publisher details')
+    def get(self, publisher_id):
+        """Fetch a publisher by ID"""
+        publisher = PublisherService.get_publisher_by_id(publisher_id)
         if publisher:
             return response(
                 status=200,
@@ -69,10 +69,15 @@ class PublisherController:
                 message='Publisher not found'
             )
 
-    def update_publisher(self, publisher_id):
+    @api.doc('update_publisher')
+    @api.expect(publisher_model)
+    @api.response(200, 'Publisher updated')
+    @api.response(400, 'Failed to update publisher')
+    def put(self, publisher_id):
+        """Update an existing publisher"""
         data = request.get_json()
         try:
-            publisher = self.publisher_service.update_publisher(publisher_id, **data)
+            publisher = PublisherService.update_publisher(publisher_id, **data)
             if publisher:
                 return response(
                     status=200,
@@ -97,9 +102,13 @@ class PublisherController:
                 message=str(e)
             )
 
-    def delete_publisher(self, publisher_id):
+    @api.doc('delete_publisher')
+    @api.response(204, 'Publisher deleted')
+    @api.response(400, 'Failed to delete publisher')
+    def delete(self, publisher_id):
+        """Delete a publisher by ID"""
         try:
-            success = self.publisher_service.delete_publisher(publisher_id)
+            success = PublisherService.delete_publisher(publisher_id)
             if success:
                 return response(
                     status=204,

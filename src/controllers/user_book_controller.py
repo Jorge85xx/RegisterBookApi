@@ -1,30 +1,29 @@
-from flask import Blueprint, request
+from flask_restx import Namespace, Resource, fields
 from services.user_book_service import UserBookService
 from utils.response import response
+from flask import request
 
+api = Namespace('user_books', description='User-Book related operations')
 
-class UserBookController:
-    def __init__(self, app=None):
-        self.user_book_bp = Blueprint('user_books', __name__, url_prefix='/user_books')
-        self.user_book_service = UserBookService()
+user_book_model = api.model('UserBook', {
+    'user_id': fields.Integer(required=True, description='The ID of the user'),
+    'book_id': fields.Integer(required=True, description='The ID of the book'),
+    'progress': fields.Float(required=False, description='Reading progress of the book'),
+    'rating': fields.Integer(required=False, description='Rating given by the user'),
+    'notes': fields.String(required=False, description='Additional notes about the book'),
+})
 
-        # Register routes
-        self.user_book_bp.add_url_rule('/', 'add_user_book', self.add_user_book, methods=['POST'])
-        self.user_book_bp.add_url_rule('/<int:user_book_id>', 'get_user_book', self.get_user_book, methods=['GET'])
-        self.user_book_bp.add_url_rule('/<int:user_book_id>', 'update_user_book', self.update_user_book, methods=['PUT'])
-        self.user_book_bp.add_url_rule('/<int:user_book_id>', 'delete_user_book', self.delete_user_book, methods=['DELETE'])
-        self.user_book_bp.add_url_rule('/user/<int:user_id>', 'get_all_user_books_by_user', self.get_all_user_books_by_user, methods=['GET'])
-
-        if app:
-            self.init_app(app)
-
-    def init_app(self, app):
-        app.register_blueprint(self.user_book_bp)
-
-    def add_user_book(self):
+@api.route('/')
+class UserBookList(Resource):
+    @api.doc('add_user_book')
+    @api.expect(user_book_model)
+    @api.response(201, 'UserBook added successfully')
+    @api.response(400, 'Failed to add user book')
+    def post(self):
+        """Add a new UserBook entry"""
         data = request.get_json()
         try:
-            user_book = self.user_book_service.add_user_book(
+            user_book = UserBookService.add_user_book(
                 user_id=data.get('user_id'),
                 book_id=data.get('book_id'),
                 progress=data.get('progress', 0.0),
@@ -59,8 +58,14 @@ class UserBookController:
                 message=str(e)
             )
 
-    def get_user_book(self, user_book_id):
-        user_book = self.user_book_service.get_user_book(user_book_id)
+@api.route('/<int:user_book_id>')
+@api.response(404, 'UserBook not found')
+class UserBookResource(Resource):
+    @api.doc('get_user_book')
+    @api.response(200, 'UserBook details retrieved')
+    def get(self, user_book_id):
+        """Fetch a UserBook by ID"""
+        user_book = UserBookService.get_user_book(user_book_id)
         if user_book:
             return response(
                 status=200,
@@ -82,10 +87,15 @@ class UserBookController:
                 message='UserBook not found'
             )
 
-    def update_user_book(self, user_book_id):
+    @api.doc('update_user_book')
+    @api.expect(user_book_model)
+    @api.response(200, 'UserBook updated successfully')
+    @api.response(400, 'Failed to update user book')
+    def put(self, user_book_id):
+        """Update an existing UserBook entry"""
         data = request.get_json()
         try:
-            user_book = self.user_book_service.update_user_book(user_book_id, **data)
+            user_book = UserBookService.update_user_book(user_book_id, **data)
             if user_book:
                 return response(
                     status=200,
@@ -114,9 +124,13 @@ class UserBookController:
                 message=str(e)
             )
 
-    def delete_user_book(self, user_book_id):
+    @api.doc('delete_user_book')
+    @api.response(204, 'UserBook deleted successfully')
+    @api.response(400, 'Failed to delete user book')
+    def delete(self, user_book_id):
+        """Delete a UserBook entry by ID"""
         try:
-            success = self.user_book_service.delete_user_book(user_book_id)
+            success = UserBookService.delete_user_book(user_book_id)
             if success:
                 return response(
                     status=204,
@@ -139,8 +153,14 @@ class UserBookController:
                 message=str(e)
             )
 
-    def get_all_user_books_by_user(self, user_id):
-        user_books = self.user_book_service.get_all_user_books_by_user(user_id)
+@api.route('/user/<int:user_id>')
+@api.response(404, 'No user books found for this user')
+class UserBooksByUser(Resource):
+    @api.doc('get_all_user_books_by_user')
+    @api.response(200, 'UserBooks retrieved successfully')
+    def get(self, user_id):
+        """Fetch all UserBooks for a specific user"""
+        user_books = UserBookService.get_all_user_books_by_user(user_id)
         if user_books:
             return response(
                 status=200,

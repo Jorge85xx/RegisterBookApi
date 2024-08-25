@@ -1,29 +1,29 @@
+from flask_restx import Namespace, Resource, fields
 from flask import Blueprint, request
 from services.author_service import AuthorService
 from utils.response import response
 
 
-class AuthorController:
-    def __init__(self, app=None):
-        self.author_bp = Blueprint('authors', __name__, url_prefix='/authors')
-        self.author_service = AuthorService()
+api = Namespace('authors', description='Author related operations')
 
-        #routes
-        self.author_bp.add_url_rule('/', 'create_author', self.create_author, methods=['POST'])
-        self.author_bp.add_url_rule('/<int:author_id>', 'get_author', self.get_author, methods=['GET'])
-        self.author_bp.add_url_rule('/<int:author_id>', 'update_author', self.update_author, methods=['PUT'])
-        self.author_bp.add_url_rule('/<int:author_id>', 'delete_author', self.delete_author, methods=['DELETE'])
 
-        if app:
-            self.init_app(app)
+author_model = api.model('Author', {
+    'first_name': fields.String(required=True, description='The first name of the author'),
+    'last_name': fields.String(required=True, description='The last name of the author'),
+    'bio': fields.String(required=False, description='A short biography of the author'),
+})
 
-    def init_app(self, app):
-        app.register_blueprint(self.author_bp)
-
-    def create_author(self):
+@api.route('/')
+class AuthorList(Resource):
+    @api.doc('create_author')
+    @api.expect(author_model)
+    @api.response(201, 'Author created')
+    @api.response(400, 'Failed to create author')
+    def post(self):
+        """Create a new author"""
         data = request.get_json()
         try:
-            author = self.author_service.create_author(
+            author = AuthorService.create_author(
                 first_name=data.get('first_name'),
                 last_name=data.get('last_name'),
                 bio=data.get('bio')
@@ -54,8 +54,33 @@ class AuthorController:
                 message=str(e)
             )
 
-    def get_author(self, author_id):
-        author = self.author_service.get_author_by_id(author_id)
+    @api.doc('get_all_authors')
+    @api.response(200, 'List of authors')
+    @api.response(400, 'Failed to fetch authors')
+    def get(self):
+        """Get a list of all authors"""
+        authors = AuthorService.get_all_authors()
+        return response(
+            status=200,
+            name_of_content='authors',
+            content=[{
+                'author_id': author.author_id,
+                'first_name': author.first_name,
+                'last_name': author.last_name,
+                'bio': author.bio
+            } for author in authors]
+        )
+
+
+@api.route('/<int:author_id>')
+@api.response(404, 'Author not found')
+class AuthorResource(Resource):
+    @api.doc('get_author')
+    @api.response(200, 'Author details')
+    @api.response(404, 'Author not found')
+    def get(self, author_id):
+        """Fetch an author by ID"""
+        author = AuthorService.get_author_by_id(author_id)
         if author:
             return response(
                 status=200,
@@ -75,10 +100,16 @@ class AuthorController:
                 message='Author not found'
             )
 
-    def update_author(self, author_id):
+    @api.doc('update_author')
+    @api.expect(author_model)
+    @api.response(200, 'Author updated')
+    @api.response(404, 'Author not found')
+    @api.response(400, 'Failed to update author')
+    def put(self, author_id):
+        """Update an existing author"""
         data = request.get_json()
         try:
-            author = self.author_service.update_author(author_id, **data)
+            author = AuthorService.update_author(author_id, **data)
             if author:
                 return response(
                     status=200,
@@ -105,9 +136,14 @@ class AuthorController:
                 message=str(e)
             )
 
-    def delete_author(self, author_id):
+    @api.doc('delete_author')
+    @api.response(204, 'Author deleted')
+    @api.response(404, 'Author not found')
+    @api.response(400, 'Failed to delete author')
+    def delete(self, author_id):
+        """Delete an author by ID"""
         try:
-            success = self.author_service.delete_author(author_id)
+            success = AuthorService.delete_author(author_id)
             if success:
                 return response(
                     status=204,

@@ -1,30 +1,30 @@
 from flask import Blueprint, request
+from flask_restx import Namespace, Resource, fields
 from services.book_service import BookService
-from utils.response import response  
+from utils.response import response
 
+api = Namespace('books', description='Book related operations')
 
-class BookController:
-    def __init__(self, app=None):
-        self.book_bp = Blueprint('books', __name__, url_prefix='/books')
-        self.book_service = BookService()
+book_model = api.model('Book', {
+    'title': fields.String(required=True, description='The title of the book'),
+    'publisher_id': fields.Integer(required=True, description='The ID of the publisher'),
+    'cover_image': fields.String(required=False, description='URL of the cover image'),
+    'author_id': fields.Integer(required=True, description='The ID of the author'),
+    'synopsis': fields.String(required=False, description='A short synopsis of the book'),
+    'genre_id': fields.Integer(required=False, description='The ID of the genre'),
+})
 
-        # routes
-        self.book_bp.add_url_rule('/', 'create_book', self.create_book, methods=['POST'])
-        self.book_bp.add_url_rule('/<int:book_id>', 'get_book', self.get_book, methods=['GET'])
-        self.book_bp.add_url_rule('/<int:book_id>', 'update_book', self.update_book, methods=['PUT'])
-        self.book_bp.add_url_rule('/<int:book_id>', 'delete_book', self.delete_book, methods=['DELETE'])
-
-        if app:
-            self.init_app(app)
-
-    def init_app(self, app):
-        app.register_blueprint(self.book_bp)
-
-    def create_book(self):
+@api.route('/')
+class BookList(Resource):
+    @api.doc('create_book')
+    @api.expect(book_model)
+    @api.response(201, 'Book created')
+    @api.response(400, 'Failed to create book')
+    def post(self):
+        """Create a new book"""
         data = request.get_json()
         try:
-
-            book = self.book_service.create_book(
+            book = BookService.create_book(
                 title=data.get('title'),
                 publisher_id=data.get('publisher_id'),
                 cover_image=data.get('cover_image'),
@@ -33,7 +33,7 @@ class BookController:
             )
             genre_id = data.get('genre_id')
             if genre_id:
-                self.book_service.add_genre_to_book(book.book_id, genre_id)
+                BookService.add_genre_to_book(book.book_id, genre_id)
             
             if book:
                 return response(
@@ -62,9 +62,55 @@ class BookController:
                 content={},
                 message=str(e)
             )
+@api.route('/list')
+class BookListByQuantity(Resource):
+    @api.doc('get_books_by_quantity')
+    @api.param('quantity', 'Number of books to retrieve')
+    @api.response(200, 'Books retrieved successfully')
+    @api.response(400, 'Failed to retrieve books')
+    def get(self):
+        """Fetch a specific number of books based on the quantity"""
+        quantity = request.args.get('quantity', default=10, type=int)  # Padrão para 10 livros
+        try:
+            if quantity > 100:
+                return response(
+                    status=400,
+                    name_of_content='error',
+                    content={},
+                    message='Invalid quantity. Please choose a quantity less than 100.'
+                )
+            
+            books = BookService.get_books(quantity)
 
-    def get_book(self, book_id):
-        book = self.book_service.get_book_by_id(book_id)
+            return response(
+                status=200,
+                name_of_content='books',
+                content=[{
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'publisher_id': book.publisher_id,
+                    'cover_image': book.cover_image,
+                    'author_id': book.author_id,
+                    'synopsis': book.synopsis
+                } for book in books]
+            )
+        except Exception as e:
+            return response(
+                status=400,
+                name_of_content='error',
+                content={},
+                message=str(e)
+            )
+
+
+@api.route('/<int:book_id>')
+@api.response(404, 'Book not found')
+class BookResource(Resource):
+    @api.doc('get_book')
+    @api.response(200, 'Book details')
+    def get(self, book_id):
+        """Fetch a book by ID"""
+        book = BookService.get_book_by_id(book_id)
         if book:
             return response(
                 status=200,
@@ -86,10 +132,15 @@ class BookController:
                 message='Book not found'
             )
 
-    def update_book(self, book_id):
+    @api.doc('update_book')
+    @api.expect(book_model)
+    @api.response(200, 'Book updated')
+    @api.response(400, 'Failed to update book')
+    def put(self, book_id):
+        """Update an existing book"""
         data = request.get_json()
         try:
-            book = self.book_service.update_book(book_id, **data)
+            book = BookService.update_book(book_id, **data)
             if book:
                 return response(
                     status=200,
@@ -118,9 +169,13 @@ class BookController:
                 message=str(e)
             )
 
-    def delete_book(self, book_id):
+    @api.doc('delete_book')
+    @api.response(204, 'Book deleted')
+    @api.response(400, 'Failed to delete book')
+    def delete(self, book_id):
+        """Delete a book by ID"""
         try:
-            success = self.book_service.delete_book(book_id)
+            success = BookService.delete_book(book_id)
             if success:
                 return response(
                     status=204,
@@ -142,3 +197,5 @@ class BookController:
                 content={},
                 message=str(e)
             )
+
+

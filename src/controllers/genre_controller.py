@@ -1,30 +1,25 @@
 from flask import Blueprint, request
+from flask_restx import Namespace, Resource, fields
 from services.genre_service import GenreService
 from utils.response import response
 
+api = Namespace('genres', description='Genre related operations')
 
-class GenreController:
-    def __init__(self, app=None):
-        self.genre_bp = Blueprint('genres', __name__, url_prefix='/genres')
-        self.genre_service = GenreService()
+genre_model = api.model('Genre', {
+    'name': fields.String(required=True, description='The name of the genre'),
+})
 
-        # Register routes
-        self.genre_bp.add_url_rule('/', 'create_genre', self.create_genre, methods=['POST'])
-        self.genre_bp.add_url_rule('/<int:genre_id>', 'get_genre', self.get_genre, methods=['GET'])
-        self.genre_bp.add_url_rule('/', 'get_all_genres', self.get_all_genres, methods=['GET'])
-        self.genre_bp.add_url_rule('/<int:genre_id>', 'update_genre', self.update_genre, methods=['PUT'])
-        self.genre_bp.add_url_rule('/<int:genre_id>', 'delete_genre', self.delete_genre, methods=['DELETE'])
-
-        if app:
-            self.init_app(app)
-
-    def init_app(self, app):
-        app.register_blueprint(self.genre_bp)
-
-    def create_genre(self):
+@api.route('/')
+class GenreList(Resource):
+    @api.doc('create_genre')
+    @api.expect(genre_model)
+    @api.response(201, 'Genre created')
+    @api.response(400, 'Failed to create genre')
+    def post(self):
+        """Create a new genre"""
         data = request.get_json()
         try:
-            genre = self.genre_service.create_genre(name=data.get('name'))
+            genre = GenreService.create_genre(name=data.get('name'))
             if genre:
                 return response(
                     status=201,
@@ -49,8 +44,29 @@ class GenreController:
                 message=str(e)
             )
 
-    def get_genre(self, genre_id):
-        genre = self.genre_service.get_genre_by_id(genre_id)
+    @api.doc('get_all_genres')
+    @api.response(200, 'Genres finded successfully')
+    def get(self):
+        """Fetch all genres"""
+        genres = GenreService.get_all_genres()
+        return response(
+            status=200,
+            name_of_content='genres',
+            content=[{
+                'genre_id': genre.genre_id,
+                'name': genre.name
+            } for genre in genres]
+        )
+
+
+@api.route('/<int:genre_id>')
+@api.response(404, 'Genre not found')
+class GenreResource(Resource):
+    @api.doc('get_genre')
+    @api.response(200, 'Genre details')
+    def get(self, genre_id):
+        """Fetch a genre by ID"""
+        genre = GenreService.get_genre_by_id(genre_id)
         if genre:
             return response(
                 status=200,
@@ -68,21 +84,15 @@ class GenreController:
                 message='Genre not found'
             )
 
-    def get_all_genres(self):
-        genres = self.genre_service.get_all_genres()
-        return response(
-            status=200,
-            name_of_content='genres',
-            content=[{
-                'genre_id': genre.genre_id,
-                'name': genre.name
-            } for genre in genres]
-        )
-
-    def update_genre(self, genre_id):
+    @api.doc('update_genre')
+    @api.expect(genre_model)
+    @api.response(200, 'Genre updated')
+    @api.response(400, 'Failed to update genre')
+    def put(self, genre_id):
+        """Update an existing genre"""
         data = request.get_json()
         try:
-            genre = self.genre_service.update_genre(genre_id, name=data.get('name'))
+            genre = GenreService.update_genre(genre_id, name=data.get('name'))
             if genre:
                 return response(
                     status=200,
@@ -107,9 +117,13 @@ class GenreController:
                 message=str(e)
             )
 
-    def delete_genre(self, genre_id):
+    @api.doc('delete_genre')
+    @api.response(204, 'Genre deleted')
+    @api.response(400, 'Failed to delete genre')
+    def delete(self, genre_id):
+        """Delete a genre by ID"""
         try:
-            success = self.genre_service.delete_genre(genre_id)
+            success = GenreService.delete_genre(genre_id)
             if success:
                 return response(
                     status=204,
