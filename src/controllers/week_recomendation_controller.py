@@ -165,3 +165,39 @@ class RecomendationResource(Resource):
                 message=str(e)
             )
 
+
+
+@api.route('/latest')
+class LatestRecomendation(Resource):
+    @api.doc('get_latest_recomendation')
+    @api.response(200, 'Latest recomendation retrieved successfully')
+    @api.response(404, 'No recomendations found')
+    def get(self):
+        """Get the latest week recomendation"""
+        try:
+            recomendation = WeekRecomendationService.get_latest_recomendation()
+            if recomendation:
+                return response(
+                    status=200,
+                    name_of_content='recomendation',
+                    content={
+                        'recomendation_id': recomendation.recomendation_id,
+                        'book_id': recomendation.book_id,
+                        'citation': recomendation.citation,
+                        'title': recomendation.title
+                    }
+                )
+            else:
+                return response(
+                    status=404,
+                    name_of_content='error',
+                    content={},
+                    message='No recomendations found'
+                )
+        except Exception as e:
+            return response(
+                status=400,
+                name_of_content='error',
+                content={},
+                message=str(e)
+            )

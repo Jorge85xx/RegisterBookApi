@@ -13,16 +13,6 @@ INSERT INTO publisher (publisher_id, name) VALUES
 (11, 'Marvel Comics'),
 (12, 'DC Comics');
 
-USE BOOKPROJECT;
--- Inserindo gêneros
-INSERT INTO genre (genre_id, name) VALUES
-(1, 'Technology and IT'),
-(2, 'Comics'),
-(3, 'Science Fiction'),
-(4, 'Fantasy'),
-(5, 'Business'),
-(6, 'Romance'),
-(7, 'Drama');
 
 INSERT INTO author (author_id, first_name, last_name, bio) VALUES
 (1, 'Robert', 'Martin', 'Autor de Clean Code e outros livros sobre desenvolvimento ágil.'),
@@ -60,6 +50,16 @@ INSERT INTO author (author_id, first_name, last_name, bio) VALUES
 (33, 'Alan', 'Moore', 'Autor de The Killing Joke.'),
 (34, 'Mark', 'Millar', 'Autor de Superman: Red Son.');
 
+USE BOOKPROJECT;
+-- Inserindo gêneros
+INSERT INTO genre (genre_id, name) VALUES
+(1, 'Technology and IT'),
+(2, 'Comics'),
+(3, 'Science Fiction'),
+(4, 'Fantasy'),
+(5, 'Business'),
+(6, 'Romance'),
+(7, 'Drama');
 USE bookproject;
 
 -- Inserindo livros com IDs de autores corrigidos
@@ -106,3 +106,46 @@ INSERT INTO book (book_id, title, publisher_id, cover_image, author_id, synopsis
 (32, 'Batman: Hush', 12, 'url_to_cover_image32', 32, 'A Batman storyline involving a mysterious figure known as Hush.'),
 (33, 'The Killing Joke', 12, 'url_to_cover_image33', 33, 'A graphic novel that delves into the Joker\'s origin story.'),
 (34, 'Superman: Red Son', 12, 'url_to_cover_image34', 34, 'A graphic novel where Superman lands in the Soviet Union.');
+
+INSERT INTO book_genre (book_id, genre_id) VALUES
+-- Tecnologia e TI
+(1, 1),
+(2, 1),
+(3, 1),
+(4, 1),
+(5, 1),
+(6, 1),
+-- Quadrinhos
+(7, 2),
+(8, 2),
+(9, 2),
+(10, 2),
+(31, 2),
+(32, 2),
+(33, 2),
+(34, 2),
+-- Ficção Científica
+(11, 3),
+(12, 3),
+(13, 3),
+(14, 3),
+-- Fantasia
+(15, 4),
+(16, 4),
+(17, 4),
+(18, 4),
+-- Negócios
+(19, 5),
+(20, 5),
+(21, 5),
+(22, 5),
+-- Romance
+(23, 6),
+(24, 6),
+(25, 6),
+(26, 6),
+-- Drama
+(27, 7),
+(28, 7),
+(29, 7),
+(30, 7);

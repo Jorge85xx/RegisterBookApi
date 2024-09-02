@@ -39,7 +39,7 @@ class UserList(Resource):
                 cpf=data.get('cpf'),
                 phone_number=data.get('phone_number'),
                 profile_picture=data.get('profile_picture'),
-                password=data.get('password'),  # Senha sem criptografia
+                password=data.get('password'),  
                 quote=data.get('quote')
             )
             if user:
@@ -180,6 +180,7 @@ class UserLogin(Resource):
     def post(self):
         """Authenticate a user"""
         data = request.get_json()
+        print(request.method)
         cpf_or_nickname = data.get('cpf_or_nickname')
         password = data.get('password')
 

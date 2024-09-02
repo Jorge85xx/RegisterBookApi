@@ -2,3 +2,4 @@ Flask
 Flask-SQLAlchemy
 mysql-connector-python
 flask_restx
+flask_cors
