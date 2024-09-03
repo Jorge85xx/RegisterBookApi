@@ -11,6 +11,7 @@ user_book_model = api.model('UserBook', {
     'progress': fields.Float(required=False, description='Reading progress of the book'),
     'rating': fields.Integer(required=False, description='Rating given by the user'),
     'notes': fields.String(required=False, description='Additional notes about the book'),
+    'favorite': fields.Boolean(required=False, description='Mark the book as favorite')  
 })
 
 @api.route('/')
@@ -28,7 +29,8 @@ class UserBookList(Resource):
                 book_id=data.get('book_id'),
                 progress=data.get('progress', 0.0),
                 rating=data.get('rating'),
-                notes=data.get('notes')
+                notes=data.get('notes'),
+                favorite=data.get('favorite', False)  
             )
             if user_book:
                 return response(
@@ -40,7 +42,8 @@ class UserBookList(Resource):
                         'book_id': user_book.book_id,
                         'progress': user_book.progress,
                         'rating': user_book.rating,
-                        'notes': user_book.notes
+                        'notes': user_book.notes,
+                        'favorite': user_book.favorite 
                     }
                 )
             else:
@@ -76,7 +79,8 @@ class UserBookResource(Resource):
                     'book_id': user_book.book_id,
                     'progress': user_book.progress,
                     'rating': user_book.rating,
-                    'notes': user_book.notes
+                    'notes': user_book.notes,
+                    'favorite': user_book.favorite  
                 }
             )
         else:
@@ -106,7 +110,8 @@ class UserBookResource(Resource):
                         'book_id': user_book.book_id,
                         'progress': user_book.progress,
                         'rating': user_book.rating,
-                        'notes': user_book.notes
+                        'notes': user_book.notes,
+                        'favorite': user_book.favorite  
                     }
                 )
             else:
@@ -172,7 +177,8 @@ class UserBooksByUser(Resource):
                         'book_id': ub.book_id,
                         'progress': ub.progress,
                         'rating': ub.rating,
-                        'notes': ub.notes
+                        'notes': ub.notes,
+                        'favorite': ub.favorite  
                     } for ub in user_books
                 ]
             )
@@ -183,3 +189,63 @@ class UserBooksByUser(Resource):
                 content={},
                 message='No user books found for this user'
             )
+
+@api.route('/<int:user_book_id>/favorite')
+class MarkAsFavorite(Resource):
+    @api.doc('mark_as_favorite')
+    @api.response(200, 'UserBook marked as favorite successfully')
+    @api.response(400, 'Failed to mark user book as favorite')
+    def post(self, user_book_id):
+        """Mark a UserBook as favorite"""
+        try:
+            user_book = UserBookService.mark_as_favorite(user_book_id, favorite=True)
+            if user_book:
+                return response(
+                    status=200,
+                    name_of_content='user_book',
+                    content={
+                        'user_book_id': user_book.user_book_id,
+                        'user_id': user_book.user_id,
+                        'book_id': user_book.book_id,
+                        'progress': user_book.progress,
+                        'rating': user_book.rating,
+                        'notes': user_book.notes,
+                        'favorite': user_book.favorite
+                    }
+                )
+            else:
+                return response(
+                    status=404,
+                    name_of_content='error',
+                    content={},
+                    message='UserBook not found'
+                )
+        except Exception as e:
+            return response(
+                status=400,
+                name_of_content='error',
+                content={},
+                message=str(e)
+            )
+    @api.route('/user/<int:user_id>/complete-books')
+    @api.response(404, 'No books found for this user')
+    class UserCompleteBooksByUser(Resource):
+        @api.doc('get_complete_books_by_user')
+        @api.response(200, 'Complete books retrieved successfully')
+        def get(self, user_id):
+            """Fetch all complete books for a specific user"""
+            books = UserBookService.get_complete_books_by_user(user_id)
+            if books:
+                return response(
+                    status=200,
+                    name_of_content='books',
+                    content=books
+                )
+            else:
+                return response(
+                    status=404,
+                    name_of_content='error',
+                    content={},
+                    message='No books found for this user'
+                )
+

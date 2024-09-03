@@ -9,15 +9,17 @@ class UserBook(db.Model):
     progress: float = field(init=False)
     rating: int = field(init=False)
     notes: str
+    favorite: bool = field(default=False)  
 
     user_book_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
-    _progress = db.Column('progress', db.Float)  
-    _rating = db.Column('rating', db.Integer)  
+    _progress = db.Column('progress', db.Float)
+    _rating = db.Column('rating', db.Integer)
     notes = db.Column(db.Text)
+    favorite = db.Column(db.Boolean, default=False)  
 
-    # Relationships
+    # Relacionamentos
     user_relation = db.relationship('User', back_populates='user_books')
     book_relation = db.relationship('Book', back_populates='book_user_relations')
 
