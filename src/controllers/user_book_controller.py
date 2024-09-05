@@ -248,4 +248,3 @@ class MarkAsFavorite(Resource):
                     content={},
                     message='No books found for this user'
                 )
-

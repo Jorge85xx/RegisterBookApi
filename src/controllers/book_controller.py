@@ -110,59 +110,6 @@ class BookListByQuantity(Resource):
                 message=str(e)
             )
     
-@api.route('/list/author')
-class BookListByAuthorAndGenre(Resource):
-    @api.doc('get_books_with_author_and_genre')
-    @api.param('quantity', 'Number of books to retrieve')
-    @api.response(200, 'Books with authors and genres retrieved successfully')
-    @api.response(400, 'Failed to retrieve books with authors and genres')
-    def get(self):
-        """Fetch a specific number of random books with their authors and genres"""
-        quantity = request.args.get('quantity', default=10, type=int)  
-        try:
-            if quantity > 100:
-                return response(
-                    status=400,
-                    name_of_content='error',
-                    content={},
-                    message='Invalid quantity. Please choose a quantity less than 100.'
-                )
-            
-            books = BookService.get_books_with_author_and_genre(quantity)
-
-            if books is None:
-                return response(
-                    status=400,
-                    name_of_content='error',
-                    content={},
-                    message='Failed to retrieve books.'
-                )
-
-            return response(
-                status=200,
-                name_of_content='books',
-                content=[{
-                    'book_id': book.book_id,
-                    'title': book.title,
-                    'publisher_id': book.publisher_id,
-                    'cover_image': book.cover_image,
-                    'author': {
-                        'author_id': book.author.author_id,
-                        'first_name': book.author.first_name,
-                        'last_name': book.author.last_name,
-                        'bio': book.author.bio
-                    },
-                    'genres': [{'genre_id': genre.genre_id, 'name': genre.name} for genre in book.genres],
-                    'synopsis': book.synopsis
-                } for book in books]
-            )
-        except Exception as e:
-            return response(
-                status=400,
-                name_of_content='error',
-                content={},
-                message=str(e)
-            )
             
 @api.route('/<int:book_id>')
 @api.response(404, 'Book not found')
@@ -260,3 +207,100 @@ class BookResource(Resource):
             )
 
 
+@api.route('/list/genre/<int:genre_id>')
+class BooksByGenre(Resource):
+    @api.doc('get_books_by_genre')
+    @api.response(200, 'Books retrieved successfully')
+    @api.response(400, 'Failed to retrieve books')
+    def get(self, genre_id):
+        """Fetch books by genre"""
+        try:
+            books = BookService.get_books_by_genre(genre_id)
+
+            if not books:
+                return response(
+                    status=404,
+                    name_of_content='error',
+                    content={},
+                    message='No books found for this genre'
+                )
+
+            return response(
+                status=200,
+                name_of_content='books',
+                content=[{
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'publisher_id': book.publisher_id,
+                    'cover_image': book.cover_image,
+                    'author': {
+                        'author_id': book.author.author_id,
+                        'first_name': book.author.first_name,
+                        'last_name': book.author.last_name,
+                        'bio': book.author.bio
+                    },
+                    'genres': [{'genre_id': genre.genre_id, 'name': genre.name} for genre in book.genres],
+                    'synopsis': book.synopsis
+                } for book in books]
+            )
+        except Exception as e:
+            return response(
+                status=400,
+                name_of_content='error',
+                content={},
+                message=str(e)
+            )
+
+@api.route('/list/author')
+class BookListByAuthorAndGenre(Resource):
+    @api.doc('get_books_with_author_and_genre')
+    @api.param('quantity', 'Number of books to retrieve')
+    @api.response(200, 'Books with authors and genres retrieved successfully')
+    @api.response(400, 'Failed to retrieve books with authors and genres')
+    def get(self):
+        """Fetch a specific number of random books with their authors and genres"""
+        quantity = request.args.get('quantity', default=10, type=int)  
+        try:
+            if quantity > 100:
+                return response(
+                    status=400,
+                    name_of_content='error',
+                    content={},
+                    message='Invalid quantity. Please choose a quantity less than 100.'
+                )
+            
+            books = BookService.get_books_with_author_and_genre(quantity)
+
+            if books is None:
+                return response(
+                    status=400,
+                    name_of_content='error',
+                    content={},
+                    message='Failed to retrieve books.'
+                )
+
+            return response(
+                status=200,
+                name_of_content='books',
+                content=[{
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'publisher_id': book.publisher_id,
+                    'cover_image': book.cover_image,
+                    'author': {
+                        'author_id': book.author.author_id,
+                        'first_name': book.author.first_name,
+                        'last_name': book.author.last_name,
+                        'bio': book.author.bio
+                    },
+                    'genres': [{'genre_id': genre.genre_id, 'name': genre.name} for genre in book.genres],
+                    'synopsis': book.synopsis
+                } for book in books]
+            )
+        except Exception as e:
+            return response(
+                status=400,
+                name_of_content='error',
+                content={},
+                message=str(e)
+            )

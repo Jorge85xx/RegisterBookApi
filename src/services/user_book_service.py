@@ -101,6 +101,7 @@ class UserBookService:
                 book = BookService.get_book_by_id(user_book.book_id)
                 if book:
                     book_data = {
+                        'user_book_id': user_book.user_book_id,
                         'book_id': book.book_id,
                         'title': book.title,
                         'publisher_id': book.publisher_id,

@@ -76,13 +76,13 @@ class BookService:
             print(f"Error find book: {e}")
             return None
         
-    # @staticmethod
-    # def get_books(quantity):
-    #     try:
-    #         return Book.query.limit(quantity).all()
-    #     except SQLAlchemyError as e:
-    #         print(f"Error fetching books: {e}")
-    #         return None
+    @staticmethod
+    def get_all_books(quantity):
+        try:
+            return Book.query.limit(quantity).all()
+        except SQLAlchemyError as e:
+            print(f"Error fetching books: {e}")
+            return None
 
     @staticmethod
     def update_book(book_id, **kwargs):
@@ -130,3 +130,19 @@ class BookService:
         except Exception as e:
             db.session.rollback()
             raise e
+        
+    @staticmethod
+    def get_books_by_genre(genre_id):
+        try:
+            books = (
+                db.session.query(Book)
+                .join(Book.genres)  
+                .join(Book.author)  
+                .filter(Genre.genre_id == genre_id)  
+                .all()
+            )
+            return books
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Error fetching books by genre: {e}")
+            return None

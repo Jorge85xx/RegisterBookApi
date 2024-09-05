@@ -19,7 +19,7 @@ class User(db.Model):
     nickname = db.Column(db.String(50), unique=True, nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False)
     phone_number = db.Column(db.String(15))
-    profile_picture = db.Column(db.String(255))
+    profile_picture = db.Column(db.String(500))
     _password = db.Column('password', db.String(255), nullable=False)
     quote = db.Column(db.Text)
 

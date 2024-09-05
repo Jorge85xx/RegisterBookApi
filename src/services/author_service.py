@@ -62,7 +62,7 @@ class AuthorService:
     @staticmethod
     def get_all_authors():
         try:
-            return Author.query.all()
+            return Author.query.order_by(Author.first_name.asc()).all()
         except SQLAlchemyError as e:
             print(f"Error retrieving authors: {e}")
             return []

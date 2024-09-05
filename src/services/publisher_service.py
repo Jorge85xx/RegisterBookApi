@@ -59,3 +59,11 @@ class PublisherService:
             db.session.rollback()
             print(f"Error deleting publisher: {e}")
             return None
+
+    @staticmethod
+    def get_all_publishers():
+        try:
+            return Publisher.query.all()
+        except SQLAlchemyError as e:
+            print(f"Error retrieving publishers: {e}")
+            return None
