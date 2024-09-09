@@ -28,8 +28,10 @@ class User(db.Model):
 
     def set_password(self, password: str):
         self._password = generate_password_hash(password)
+        
 
     def check_password(self, password: str) -> bool:
+        print(generate_password_hash(password))
         return check_password_hash(self._password, password)
 
     def __repr__(self):

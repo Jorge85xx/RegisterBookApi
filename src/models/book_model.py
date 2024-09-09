@@ -13,7 +13,7 @@ class Book(db.Model):
     book_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publisher.publisher_id'), nullable=False)
-    cover_image = db.Column(db.String(255))
+    cover_image = db.Column(db.Text)
     author_id = db.Column(db.Integer, db.ForeignKey('author.author_id'), nullable=False)
     synopsis = db.Column(db.Text)
 
