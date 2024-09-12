@@ -151,4 +151,4 @@ INSERT INTO book_genre (book_id, genre_id) VALUES
 (30, 7);
 
 INSERT INTO user (user_id, first_name, last_name, nickname, cpf, phone_number, profile_picture, password) 
-VALUES (1, 'jorge', 'gabriel', 'gabe', 55943700805, 12996532585, 'teste', '2453');
+VALUES (1, 'jorge', 'gabriel', 'gabe', 55943700805, 12996532585, 'teste', 'scrypt:32768:8:1$qjSTpjlp00bJZ4lM$46d5aa73162a4e0931233dd0223b44d8fbce90ba0043bcaec464a8898daa43d61b240b3dc32592c6a870cc647c002b459705f4c1a7bc4fe10b2876c580c772d9');

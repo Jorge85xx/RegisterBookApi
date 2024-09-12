@@ -46,29 +46,29 @@ class BookServiceTestCase(unittest.TestCase):
             self.assertEqual(book.synopsis, synopsis)
             self.book_service.delete_book(book.book_id)
 
-    # def test_get_books(self):
-        
-    #     created_books = []
-    #     for i in range(5):
-    #         book = self.book_service.create_book(
-    #             title=f"Book {i}",
-    #             publisher_id=self.publisher_id,
-    #             cover_image="cover_image_url",
-    #             author_id=self.author_id,
-    #             synopsis=f"Synopsis {i}"
-    #         )
-    #         created_books.append(book)
-
-       
-    #     books = self.book_service.get_books(quantity=3)
-        
-        
-    #     print(books)
-    #     self.assertEqual(len(books), 3, "Should return exactly 3 books.")
+    def test_get_books(self):
+        with self.app.app_context():
+            created_books = []
+            for i in range(5):
+                book = self.book_service.create_book(
+                    title=f"Book {i}",
+                    publisher_id=self.publisher_id,
+                    cover_image="cover_image_url",
+                    author_id=self.author_id,
+                    synopsis=f"Synopsis {i}"
+                )
+                created_books.append(book)
 
         
-    #     for book in created_books:
-    #         self.book_service.delete_book(book.book_id)
+            books = self.book_service.get_books(quantity=3)
+            
+            
+            print(books)
+            self.assertEqual(len(books), 3, "Should return exactly 3 books.")
+
+            
+            for book in created_books:
+                self.book_service.delete_book(book.book_id)
 
 
     def test_get_books_with_author_and_genre(self):
@@ -151,11 +151,12 @@ class BookServiceTestCase(unittest.TestCase):
             )
             self.assertGreater(len(book_genres), 0)
 
-    # def test_get_books_by_genre(self):
-    #         books = self.book_service.get_books_by_genre(1)
-    #         print(books)
-    #         self.assertGreater(len(books), 0)
-    #         self.assertEqual(books[0].title, "Clean Code")
+    def test_get_books_by_genre(self):
+        with self.app.app_context():
+            books = self.book_service.get_books_by_genre(1)
+            print(books)
+            self.assertGreater(len(books), 0)
+            self.assertEqual(books[0].title, "Clean Code")
 
 if __name__ == '__main__':
     unittest.main()

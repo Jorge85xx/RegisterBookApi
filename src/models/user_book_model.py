@@ -29,8 +29,6 @@ class UserBook(db.Model):
 
     @rating.setter
     def rating(self, value):
-        print("hjdsagfuhfbhdsuijbfsaujidjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
-        print(value)
         if 1 <= value <= 10:
             self._rating = value
         else:

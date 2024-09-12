@@ -59,6 +59,7 @@ class UserServiceTestCase(unittest.TestCase):
 
             deleted_user = UserService.get_user_by_id(user.user_id)
             self.assertIsNone(deleted_user)
+            
     def test_update_user(self):
         with self.app.app_context():
             original_nickname = self._generate_random_string()

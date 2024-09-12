@@ -110,7 +110,8 @@ class UserBookService:
                         'progress': user_book._progress,
                         'rating': user_book._rating,
                         'notes': user_book.notes,
-                        'favorite': user_book.favorite
+                        'favorite': user_book.favorite,
+                        'user_book_id': user_book.user_book_id,
                     }
                     books.append(book_data)
                 
