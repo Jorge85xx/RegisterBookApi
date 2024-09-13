@@ -30,16 +30,16 @@ class BookService:
             total_books = Book.query.count()
             if quantity > total_books:
                 quantity = total_books
-            random_ids = random.sample(range(1, total_books + 1), quantity)
-            books = Book.query.filter(Book.book_id.in_(random_ids)).all()
-            
+            if total_books > 0:
+                subquery = db.session.query(Book.book_id).order_by(func.rand()).limit(quantity).subquery()
+                books = Book.query.join(subquery, Book.book_id == subquery.c.book_id).all()
+            else:
+                books = []
+
             return books
         except SQLAlchemyError as e:
             db.session.rollback()
             print(f"Error fetching books: {e}")
-            return None
-        except ValueError as e:
-            print(f"Error in random selection: {e}")
             return None
     
     @staticmethod

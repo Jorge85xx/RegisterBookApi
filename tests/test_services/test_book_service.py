@@ -47,33 +47,14 @@ class BookServiceTestCase(unittest.TestCase):
 
     def test_get_books(self):
         with self.app.app_context():
-            created_books = []
-            for i in range(5):
-                book = self.book_service.create_book(
-                    title=f"Book {i}",
-                    publisher_id=self.publisher_id,
-                    cover_image="cover_image_url",
-                    author_id=self.author_id,
-                    synopsis=f"Synopsis {i}"
-                )
-                created_books.append(book)
-
-        
             books = self.book_service.get_books(quantity=3)
-            
-            
+            print("djszfhiashfdjinfouasdfnadsiofcdsnaKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
             print(books)
             self.assertEqual(len(books), 3, "Should return exactly 3 books.")
-
-            
-            for book in created_books:
-                self.book_service.delete_book(book.book_id)
-
 
     def test_get_books_with_author_and_genre(self):
         with self.app.app_context():
             books = self.book_service.get_books_with_author_and_genre(quantity=3)
-            print(books)
             self.assertEqual(len(books), 3)
             
 
