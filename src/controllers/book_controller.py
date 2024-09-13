@@ -304,3 +304,49 @@ class BookListByAuthorAndGenre(Resource):
                 content={},
                 message=str(e)
             )
+            
+    @api.route('/search')
+    class BookSearch(Resource):
+        @api.doc('get_books_by_title')
+        @api.param('title', 'Title of the book to search')
+        @api.response(200, 'Books retrieved successfully')
+        @api.response(400, 'Failed to retrieve books')
+        def get(self):
+            """Fetch books by title"""
+            title = request.args.get('title', default='', type=str)
+            try:
+                books = BookService.get_books_by_title(title)
+                
+                if books is None:
+                    return response(
+                        status=400,
+                        name_of_content='error',
+                        content={},
+                        message='Failed to retrieve books.'
+                    )
+
+                return response(
+                    status=200,
+                    name_of_content='books',
+                    content=[{
+                        'book_id': book.book_id,
+                        'title': book.title,
+                        'publisher_id': book.publisher_id,
+                        'cover_image': book.cover_image,
+                        'author': {
+                            'author_id': book.author.author_id,
+                            'first_name': book.author.first_name,
+                            'last_name': book.author.last_name,
+                            'bio': book.author.bio
+                        },
+                        'genres': [{'genre_id': genre.genre_id, 'name': genre.name} for genre in book.genres],
+                        'synopsis': book.synopsis
+                    } for book in books]
+                )
+            except Exception as e:
+                return response(
+                    status=400,
+                    name_of_content='error',
+                    content={},
+                    message=str(e)
+                )

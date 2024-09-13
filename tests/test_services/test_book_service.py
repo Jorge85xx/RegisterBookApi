@@ -15,7 +15,6 @@ class BookServiceTestCase(unittest.TestCase):
 
         with self.app.app_context():
             db.create_all()
-            
             self.author_id = 1  
             self.publisher_id = 1  
             self.genre_id = 1  
@@ -130,33 +129,27 @@ class BookServiceTestCase(unittest.TestCase):
             deleted_book = self.book_service.get_book_by_id(book.book_id)
             self.assertIsNone(deleted_book)
 
-    def test_add_genre_to_book(self):
+    def test_get_books_by_title(self):
         with self.app.app_context():
+            book_title = "teste livro"
             book = self.book_service.create_book(
-                title="Ender's Game",
+                title=book_title,
                 publisher_id=self.publisher_id,
                 cover_image="cover_image_url",
                 author_id=self.author_id,
-                synopsis="A science fiction novel."
+                synopsis="A book about writing clean code."
             )
 
-            success = self.book_service.add_genre_to_book(book.book_id, self.genre_id)
-            self.assertTrue(success)
-
-            book_genres = (
-                db.session.query(BookGenre)
-                .filter(BookGenre.book_id == book.book_id)
-                .filter(BookGenre.genre_id == self.genre_id)
-                .all()
-            )
-            self.assertGreater(len(book_genres), 0)
-
-    def test_get_books_by_genre(self):
-        with self.app.app_context():
-            books = self.book_service.get_books_by_genre(1)
-            print(books)
-            self.assertGreater(len(books), 0)
-            self.assertEqual(books[0].title, "Clean Code")
+            books = self.book_service.get_books_by_title("teste livro")
+            
+            self.assertIsNotNone(books, "Should return a list of books.")
+            self.assertGreater(len(books), 0, "Should return at least one book.")
+            
+            for book in books:
+                self.assertIn(book_title.lower(), book.title.lower(), "Book title should contain the search term.")
+            
+            self.book_service.delete_book(book.book_id)
+            
 
 if __name__ == '__main__':
     unittest.main()

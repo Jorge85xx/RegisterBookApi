@@ -2,6 +2,7 @@ from extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from models import Book, Genre, BookGenre
 import random
+from sqlalchemy import func
 
 
 class BookService:
@@ -41,33 +42,6 @@ class BookService:
             print(f"Error in random selection: {e}")
             return None
     
-    @staticmethod
-    def get_books_with_author_and_genre(quantity):
-        try:
-            total_books = Book.query.count()
-            
-            if quantity > total_books:
-                quantity = total_books
-
-            books = (
-                db.session.query(Book)
-                .join(Book.author)
-                .outerjoin(Book.genres)
-                .options(db.contains_eager(Book.author), db.contains_eager(Book.genres))
-                .order_by(db.func.random())  # Seleciona livros aleatórios
-                .limit(quantity)
-                .all()
-            )
-            
-            return books
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print(f"Error fetching books with authors and genres: {e}")
-            return None
-        except ValueError as e:
-            print(f"Error in random selection: {e}")
-            return None
-        
     @staticmethod
     def get_book_by_id(book_id):
         try:
@@ -146,3 +120,49 @@ class BookService:
             db.session.rollback()
             print(f"Error fetching books by genre: {e}")
             return None
+
+    @staticmethod
+    def get_books_by_title(title):
+        try:
+            lower_title = title.lower()
+            books = (
+                db.session.query(Book)
+                .join(Book.author)
+                .outerjoin(Book.genres)
+                .options(db.contains_eager(Book.author), db.contains_eager(Book.genres))
+                .filter(func.lower(Book.title).like(f'%{lower_title}%'))
+                .all()
+            )
+            return books
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Error fetching books by title: {e}")
+            return None
+    
+    @staticmethod
+    def get_books_with_author_and_genre(quantity):
+        try:
+            total_books = Book.query.count()
+            
+            if quantity > total_books:
+                quantity = total_books
+
+            books = (
+                db.session.query(Book)
+                .join(Book.author)
+                .outerjoin(Book.genres)
+                .options(db.contains_eager(Book.author), db.contains_eager(Book.genres))
+                .order_by(db.func.random()) 
+                .limit(quantity)
+                .all()
+            )
+            
+            return books
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Error fetching books with authors and genres: {e}")
+            return None
+        except ValueError as e:
+            print(f"Error in random selection: {e}")
+            return None
+        
